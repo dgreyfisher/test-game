@@ -1,4 +1,8 @@
+#Ignore Commonly Ignored Filetypes
 *.[oa]
 *~
+
+#Ignore the assets and public folders and all contents
+
 assets/
 public/
