@@ -5,3 +5,5 @@ $ cat .gitignore
 
 assets/**/*
 public/**/*
+assets
+public
