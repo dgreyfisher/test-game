@@ -10,23 +10,30 @@
     <Title>Sample Game</Title> 
 </head>
 
-<body style="background-image: url('assets/Bg_Colors.jpg'); background-repeat: no-repeat; background-size:cover;">
+<body id="background">
     <div id="gamebox">
-        <div class="row higher">
-            <div class="column left" style="background-color:#aaa;">
-                <img src="assets/Bg_Space1.png" alt="Space Background" style="display:block;  margin-left:auto; margin-right:auto; width:300px; height:300px;">
+        <div class="row">
+
+            <div id="carddisplay"class="column">
+                <img id ="cardimagedisplay" src="assets/Bg_Space1.png" alt="Space Background">
+                <div id="cardtextbox">
+                    <p>Lorem Ipsum Dolor Sit Amet</p>
+                </div>
             </div>
-            <div class="column middle" id="scrolllog" style="background-color:#bbb;">
+
+            <div id="scrolllog" class="column" >
                 <h2>Title</h2>
                 <p id="log">This text shouldn't be displaying!</p>
             </div>
-            <div id="resources" class="column" style="background-color:#ccc;">
+
+            <div id="resources" class="column" >
             </div>
+
         </div>
 
-        <div class="row lower">
-            <div class="zone" id="hand"></div>
-            <div class="zone" id="decision"></div>
+        <div class="row">
+            <div id="hand" class="zone" ></div>
+            <div id="decision" class="zone" ></div>
         </div>    
     </div>
 

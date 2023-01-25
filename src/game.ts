@@ -332,23 +332,26 @@ function clearLog(){
 	logHTML.innerHTML="";
 }
 function hideHand(){
-	handHTML.innerHTML="";
+	handHTML.style.display='none';
 }
 function refreshHand(){
 	handHTML.innerHTML="";
 	if(handZone.cards.length>0){
 		handZone.cards.forEach(displayCard);
 	}
+	handHTML.style.display='block';
 }
 function refreshDecisions(){
 	decisionHTML.innerHTML="";
 	if(decisionZone.cards.length>0){
 		decisionZone.cards.forEach(displayCard);
 	}
+	decisionHTML.style.display='block';
 }
 function clearDecisions() {
 	decisionZone.cards.length = 0;
 	refreshDecisions();
+	decisionHTML.style.display='none';
 }
 function displayCard(card : Card){
 	card.displayCard();
