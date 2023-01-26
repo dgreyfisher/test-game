@@ -14,17 +14,18 @@ const cardTextBoxHTML: HTMLElement | any = document.getElementById("cardtextbox"
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Card Display~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //const defaultCardDisplay: string = '<img src="assets/Bg_Space1.png" alt="Space">';
 
-function updateCardDisplay(id:string|null){
-	let display : string = `<img id ="cardimagedisplay" src="assets/Bg_Space1.png" alt="SpaceBackground">
-	<div id="cardtextbox">	<p>Lorem Ipsum Dolor Sit Amet</p></div>`;
-	updateLog("Updating Display. ID Found: ");
-if(id!=null){
-	let c = getCardByID(Number(id));
-	updateLog(c.name);
-	display = `<img id ="cardimagedisplay" src="assets/${c.name}.jpg" alt="${c.name}">
+function updateCardDisplay(html: HTMLElement){
+	let c = getCardByID(Number(html.id));
+	let display : string = `<img id ="cardimagedisplay" 
+	src="assets/${c.name}.jpg" alt="${c.name}">
 	<div id="cardtextbox">	<p>${c.cardText}</p></div>`;
-}
+
 cardDisplayHTML.innerHTML = display;
+}
+function clearCardDisplay(html: HTMLElement){
+	cardDisplayHTML.innerHTML = `<img id ="cardimagedisplay" 
+	src="assets/Bg_Space1.png" alt="SpaceBackground">
+	<div id="cardtextbox">	<p>Lorem Ipsum Dolor Sit Amet</p></div>`;
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Resources~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -56,7 +57,7 @@ class Card {
     uniqueID: number;
 	displayZone: HTMLElement|null = null;
 	btn: HTMLElement|null =null;
-	img: string|null = null;
+	cardImg: HTMLElement|null = null;
 	cardText: string|null = "Generic Card Text";
 	constructor() {
 		this.uniqueID = getUniqueID();
@@ -64,8 +65,11 @@ class Card {
 	}
 
 	getImage(){
-		this.img = `<div class="card">	<input type="image" class="cardimage" src="assets/${this.name}.jpg" id=${this.uniqueID} 
-		 onclick="cardClicked(event)" alt="${this.name}" /><p>${this.name}</p>	</div>`
+		//Does this need to be run every time? will it get cleaned up if the card is cleared and need to be rerun?
+		this.cardImg = document.createElement("card");
+		this.cardImg.className="card";
+		this.cardImg.id = this.uniqueID.toString();
+		this.cardImg.innerHTML+=`<img class="cardimage"	src="assets/${this.name}.jpg" alt="${this.name}"/> <p>${this.name}</p>`;
 	}
 	//Passive Effects
 	onDraw() {
@@ -88,10 +92,8 @@ class Card {
 
 	displayCard() {
 		if(this.displayZone!=null){
-			//Create button in HTML strin
-			//Append String to appropriate Zone
 			this.getImage();
-			this.displayZone.innerHTML+=this.img;
+			this.displayZone.appendChild((<Node>this.cardImg));
 		}	
 	}
 }
@@ -248,10 +250,23 @@ let decisionZone = new Zone("Decision");
 
 if(handHTML!=null){
 	handHTML.addEventListener("mouseover", (event) => {
-		updateLog("Toot");
 		if(event.target){
-			if((<HTMLElement>event.target).className=='card') {
-			updateCardDisplay((<HTMLElement>event.target).id);
+			if((<HTMLElement>event.target).className==='card') {
+			updateCardDisplay((<HTMLElement>event.target));
+			}
+		}
+	})
+	handHTML.addEventListener("click", (event) => {
+		if(event.target){
+			if((<HTMLElement>event.target).className==='card') {
+			cardClicked((<HTMLElement>event.target));
+			}
+		}
+	})
+	handHTML.addEventListener("mouseout", (event) => {
+		if(event.target){
+			if((<HTMLElement>event.target).className==='card') {
+			clearCardDisplay((<HTMLElement>event.target));
 			}
 		}
 	})
@@ -281,11 +296,8 @@ function getUniqueID() {
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Card Effects~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-function cardClicked(event:any){
-	updateLog("");
-	event = event || window.event; // IE
-    var target = event.target || event.srcElement; // IE
-	getCardByID(target.id).onPlay();
+function cardClicked(card: HTMLElement){
+	getCardByID(Number(card.id)).onPlay();
 }
 function playCard(card: Card) {
 	
