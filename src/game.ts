@@ -1,13 +1,31 @@
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~HTML Elements~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//Used to update the log
 const logHTML: HTMLElement | any = document.getElementById("log");
-const handHTML: HTMLElement | any = document.getElementById("hand");
+//Used to add Cards to appropriate zones
+const handHTML: HTMLElement|null = document.getElementById("hand");
 const decisionHTML: HTMLElement | any = document.getElementById("decision");
+//Used to Update Resources
 const resourcesHTML: HTMLElement | any = document.getElementById("resources");
+//Used to update Card Preview Display
+const cardImageDisplayHTML: HTMLElement | any = document.getElementById("cardimagedisplay");
+const cardDisplayHTML: HTMLElement | any = document.getElementById("carddisplay");
+const cardTextBoxHTML: HTMLElement | any = document.getElementById("cardtextbox");
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Images~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//<img src="img_girl.jpg" alt="Girl in a jacket">
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Card Display~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//const defaultCardDisplay: string = '<img src="assets/Bg_Space1.png" alt="Space">';
 
-const img_farmer: string = '<img src="assets/img_farmer.jpg" alt="Farmer">';
+function updateCardDisplay(id:string|null){
+	let display : string = `<img id ="cardimagedisplay" src="assets/Bg_Space1.png" alt="SpaceBackground">
+	<div id="cardtextbox">	<p>Lorem Ipsum Dolor Sit Amet</p></div>`;
+	updateLog("Updating Display. ID Found: ");
+if(id!=null){
+	let c = getCardByID(Number(id));
+	updateLog(c.name);
+	display = `<img id ="cardimagedisplay" src="assets/${c.name}.jpg" alt="${c.name}">
+	<div id="cardtextbox">	<p>${c.cardText}</p></div>`;
+}
+cardDisplayHTML.innerHTML = display;
+}
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Resources~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class Resource{
@@ -35,17 +53,19 @@ enum Phase {
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Cards~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class Card {
 	name: string;
-    uniqueID: Number;
+    uniqueID: number;
 	displayZone: HTMLElement|null = null;
 	btn: HTMLElement|null =null;
-	img: string|null=null; 
+	img: string|null = null;
+	cardText: string|null = "Generic Card Text";
 	constructor() {
 		this.uniqueID = getUniqueID();
 		this.name  = "Unnamed";	
 	}
 
 	getImage(){
-		this.img = `<div class="card">	<input type="image" class="cardimage" src="assets/${this.name}.jpg" id=${this.uniqueID}  onclick="cardClicked(event)" alt="${this.name}" /><p>${this.name}</p>	</div>`
+		this.img = `<div class="card">	<input type="image" class="cardimage" src="assets/${this.name}.jpg" id=${this.uniqueID} 
+		 onclick="cardClicked(event)" alt="${this.name}" /><p>${this.name}</p>	</div>`
 	}
 	//Passive Effects
 	onDraw() {
@@ -72,7 +92,7 @@ class Card {
 			//Append String to appropriate Zone
 			this.getImage();
 			this.displayZone.innerHTML+=this.img;
-		}
+		}	
 	}
 }
 class Farmer extends Card {
@@ -80,7 +100,7 @@ class Farmer extends Card {
 	constructor(){
 		super();
 		this.name = "Farmer";
-
+		this.cardText="FARMOOOOO!";
 	}
 	onTurnStart() {
 		updateLog(this.name+" harvested 1 Food");
@@ -225,6 +245,18 @@ let handZone = new Zone("Hand");
 let discardZone = new Zone("Discard");
 let tableZone = new Zone("Table");
 let decisionZone = new Zone("Decision");
+
+if(handHTML!=null){
+	handHTML.addEventListener("mouseover", (event) => {
+		updateLog("Toot");
+		if(event.target){
+			if((<HTMLElement>event.target).className=='card') {
+			updateCardDisplay((<HTMLElement>event.target).id);
+			}
+		}
+	})
+}
+
 startGame();
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~Misc Functions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -332,14 +364,16 @@ function clearLog(){
 	logHTML.innerHTML="";
 }
 function hideHand(){
+	if(handHTML!=null)
 	handHTML.style.display='none';
 }
 function refreshHand(){
+	if(handHTML!=null){
 	handHTML.innerHTML="";
 	if(handZone.cards.length>0){
 		handZone.cards.forEach(displayCard);
 	}
-	handHTML.style.display='block';
+	handHTML.style.display='block';}
 }
 function refreshDecisions(){
 	decisionHTML.innerHTML="";
@@ -377,6 +411,8 @@ function updateImage() {
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Game Loop~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 function startGame() {
 	//Initialize Variables, Get Player Name, Set Options, Load Saves, Create Deck
+	
+
 	clearLog();
 	setUpDeck();
 	drawPhase();

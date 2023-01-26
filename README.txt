@@ -6,5 +6,7 @@ Updated: 1/22/23
 
 
 ~~~~~To-Do~~~~~
+
+-Change how card HTMLelements are made and appended to the HandHTML div
+
 -On Hover Effect that displays card in image Frame
-    -Lower Area for displaying detailed text from the card
