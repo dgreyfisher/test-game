@@ -10,10 +10,13 @@
     display: table;
     clear: both;
 }
+.clickthrough {
+    pointer-events: none;
+}
 .zone {  
     text-align: center;
     width: fit-content;
-    height: 150px;
+    height: 175px;
     margin: auto;
     background-color: rgb(41, 41, 41);
     padding:10px;

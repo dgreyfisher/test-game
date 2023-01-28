@@ -3,7 +3,7 @@
 const logHTML: HTMLElement | any = document.getElementById("log");
 //Used to add Cards to appropriate zones
 const handHTML: HTMLElement|null = document.getElementById("hand");
-const decisionHTML: HTMLElement | any = document.getElementById("decision");
+const decisionHTML: HTMLElement | null = document.getElementById("decision");
 //Used to Update Resources
 const resourcesHTML: HTMLElement | any = document.getElementById("resources");
 //Used to update Card Preview Display
@@ -69,7 +69,7 @@ class Card {
 		this.cardImg = document.createElement("card");
 		this.cardImg.className="card";
 		this.cardImg.id = this.uniqueID.toString();
-		this.cardImg.innerHTML+=`<img class="cardimage"	src="assets/${this.name}.jpg" alt="${this.name}"/> <p>${this.name}</p>`;
+		this.cardImg.innerHTML+=`<img class="cardimage clickthrough"	src="assets/${this.name}.jpg" alt="${this.name}"/> <p class="clickthrough">${this.name}</p>`;
 	}
 	//Passive Effects
 	onDraw() {
@@ -248,7 +248,7 @@ let discardZone = new Zone("Discard");
 let tableZone = new Zone("Table");
 let decisionZone = new Zone("Decision");
 
-if(handHTML!=null){
+if(handHTML!=null && decisionHTML!=null){
 	handHTML.addEventListener("mouseover", (event) => {
 		if(event.target){
 			if((<HTMLElement>event.target).className==='card') {
@@ -264,6 +264,27 @@ if(handHTML!=null){
 		}
 	})
 	handHTML.addEventListener("mouseout", (event) => {
+		if(event.target){
+			if((<HTMLElement>event.target).className==='card') {
+			clearCardDisplay((<HTMLElement>event.target));
+			}
+		}
+	})
+	decisionHTML.addEventListener("mouseover", (event) => {
+		if(event.target){
+			if((<HTMLElement>event.target).className==='card') {
+			updateCardDisplay((<HTMLElement>event.target));
+			}
+		}
+	})
+	decisionHTML.addEventListener("click", (event) => {
+		if(event.target){
+			if((<HTMLElement>event.target).className==='card') {
+			cardClicked((<HTMLElement>event.target));
+			}
+		}
+	})
+	decisionHTML.addEventListener("mouseout", (event) => {
 		if(event.target){
 			if((<HTMLElement>event.target).className==='card') {
 			clearCardDisplay((<HTMLElement>event.target));
@@ -388,15 +409,21 @@ function refreshHand(){
 	handHTML.style.display='block';}
 }
 function refreshDecisions(){
+	if(decisionHTML)
 	decisionHTML.innerHTML="";
 	if(decisionZone.cards.length>0){
 		decisionZone.cards.forEach(displayCard);
+		if(decisionHTML) decisionHTML.style.display='block';
+	} else {
+		
 	}
-	decisionHTML.style.display='block';
+	
+	
 }
 function clearDecisions() {
 	decisionZone.cards.length = 0;
 	refreshDecisions();
+	if(decisionHTML)
 	decisionHTML.style.display='none';
 }
 function displayCard(card : Card){
