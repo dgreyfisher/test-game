@@ -40,8 +40,6 @@ class Resource{
 	}
 }
 
-
-
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Phases~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 enum Phase {
 	PreGame,
@@ -52,6 +50,8 @@ enum Phase {
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Cards~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+const allCards : Map<string,Card> = new Map<string,Card>();
+
 class Card {
 	name: string;
     uniqueID: number;
@@ -59,9 +59,16 @@ class Card {
 	btn: HTMLElement|null =null;
 	cardImg: HTMLElement|null = null;
 	cardText: string|null = "Generic Card Text";
-	constructor() {
+	onPlayAbilities: Array<Ability> = new Array<Ability>();
+	onDrawAbilities: Array<Ability> = new Array<Ability>();
+	onTurnStartAbilities: Array<Ability> = new Array<Ability>();
+	onDecisionAbilities: Array<Ability> = new Array<Ability>();
+	onTurnEndAbilities: Array<Ability> = new Array<Ability>();
+
+	constructor(name:string,cardText:string) {
 		this.uniqueID = getUniqueID();
-		this.name  = "Unnamed";	
+		this.name  = name;
+		this.cardText = cardText;
 	}
 
 	getImage(){
@@ -71,24 +78,6 @@ class Card {
 		this.cardImg.id = this.uniqueID.toString();
 		this.cardImg.innerHTML+=`<img class="cardimage clickthrough"	src="assets/${this.name}.jpg" alt="${this.name}"/> <p class="clickthrough">${this.name}</p>`;
 	}
-	//Passive Effects
-	onDraw() {
-		//By Default does nothing
-	}
-	onTurnStart() {
-		//By Default does nothing
-	}
-	onDecision() {
-		//By Default does nothing
-	}
-	onTurnEnd() {
-		//By Default does nothing
-	}
-
-	//Active Effects
-	onPlay() {
-		throw new Error("Method 'Card.onPlay()' must be implemented.");
-	}
 
 	displayCard() {
 		if(this.displayZone!=null){
@@ -96,124 +85,38 @@ class Card {
 			this.displayZone.appendChild((<Node>this.cardImg));
 		}	
 	}
-}
-class Farmer extends Card {
-	
-	constructor(){
-		super();
-		this.name = "Farmer";
-		this.cardText="FARMOOOOO!";
+	//Active Effects
+	onPlay() {
+		updateLog("");
+		if(this.onPlayAbilities.length>0)
+		this.onPlayAbilities.forEach((obj) => {
+			obj.activate();
+		});
+	}
+	//Passive Effects
+	onDraw() {
+		if(this.onDrawAbilities.length>0)
+			this.onDrawAbilities.forEach((obj) => {
+				obj.activate();
+			});
 	}
 	onTurnStart() {
-		updateLog(this.name+" harvested 1 Food");
-		changeResources("Food",1);
+		if(this.onTurnStartAbilities.length>0)
+		this.onTurnStartAbilities.forEach((obj) => {
+			obj.activate();
+		});
 	}
-	onPlay() {
-		
-		updateLog("'Oh I sure do love farming!'");
-
-		//Change Resources.
-		updateLog(this.name+" harvested 5 Food!");
-		changeResources("Food",5);
-
-		//Move to Decision Phase
-		hideHand();
-		addDecisions(new D_EndTurn());
-		decisionPhase();
+	onDecision() {
+		if(this.onDecisionAbilities.length>0)
+		this.onDecisionAbilities.forEach((obj) => {
+			obj.activate();
+		});
 	}
-}
-class Soldier extends Card {
-	
-	constructor(){
-		super();
-		this.name = "Soldier";
-	}
-	onTurnStart() {
-		updateLog(this.name+" bolstered Defense by 1!");
-		changeResources("Defense",1);
-	}
-	onPlay() {
-		hideHand();
-		updateLog("'GUARD IT ALL BOLSTER IT UP YES!'");
-		updateLog(this.name+" bolstered Defense by 5!");
-		changeResources("Defense",5);
-		addDecisions(new D_EndTurn());
-		decisionPhase();
-	}
-}
-class Priest extends Card {
-	
-	constructor(){
-		super();
-		this.name = "Priest";
-	}
-	onTurnStart() {
-		updateLog(this.name+" gained 1 Follower!");
-		changeResources("Followers",1);
-	}
-	onPlay() {
-		hideHand();
-		updateLog("'I could priest ALL DAY!'");
-		updateLog(this.name+" gained 5 Followers!");
-		changeResources("Followers",5);
-		addDecisions(new D_EndTurn());
-		decisionPhase();
-	}
-}
-class Artist extends Card {
-	
-	constructor(){
-		super();
-		this.name = "Artist";
-	}
-	onTurnStart() {
-		updateLog(this.name+" crafted 1 Culture!");
-		changeResources("Culture",1);
-	}
-	onPlay() {
-		hideHand();
-		updateLog("'Churning out them Cultures!'");
-		updateLog(this.name+" crafted 5 Culture!");
-		changeResources("Culture",5);
-		addDecisions(new D_EndTurn());
-		decisionPhase();
-	}
-}
-class Lord extends Card {
-	
-	constructor(){
-		super();
-		this.name = "Lord";
-	}
-	onTurnStart() {
-		updateLog(this.name+" collected 1 of everything!");
-		changeResources("Food",1);
-		changeResources("Followers",1);
-		changeResources("Culture",1);
-		changeResources("Defense",1);
-	}
-	onPlay() {
-		hideHand();
-		updateLog("'Lording is the best job there is!'");
-		updateLog(this.name+" collected 1 of everything!");
-		changeResources("Food",1);
-		changeResources("Followers",1);
-		changeResources("Culture",1);
-		changeResources("Defense",1);
-		addDecisions(new D_EndTurn());
-		decisionPhase();
-	}
-}
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Decisions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-class D_EndTurn extends Card {
-	constructor(){
-		super();
-		this.displayZone = decisionHTML;
-		this.name = "End Turn";
-	}
-	onPlay() {
-		endTurnPhase();
+	onTurnEnd() {
+		if(this.onTurnEndAbilities.length>0)
+		this.onTurnEndAbilities.forEach((obj) => {
+			obj.activate();
+		});
 	}
 }
 
@@ -291,6 +194,54 @@ if(handHTML!=null && decisionHTML!=null){
 			}
 		}
 	})
+}
+
+class Ability {
+	var1 : any;
+	var2 : any;
+	var3 : any;
+	constructor(x:any = null,y:any = null,z:any = null){
+		this.var1=x;
+		this.var2=y;
+		this.var3=z;
+	}
+	activate(){		
+	}
+}
+class ChangeResources extends Ability{
+	activate(): void {
+		changeResources(this.var1,this.var2);
+	}
+}
+class UpdateLog extends Ability{
+	activate(): void {
+		updateLog(this.var1);
+	}
+}
+class AddDecisions extends Ability{
+	activate(): void {
+		addDecisions(this.var1);
+	}
+}
+class DiscardHand extends Ability{
+	activate(): void {
+		discardHand();
+	}
+}
+class HideHand extends Ability{
+	activate(): void {
+		hideHand();
+	}
+}
+class DecisionPhase extends Ability{
+	activate(): void {
+		decisionPhase();
+	}
+}
+class EndTurnPhase extends Ability{
+	activate(): void {
+		endTurnPhase();
+	}
 }
 
 startGame();
@@ -450,19 +401,59 @@ function updateImage() {
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Game Loop~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 function startGame() {
 	//Initialize Variables, Get Player Name, Set Options, Load Saves, Create Deck
-	
-
 	clearLog();
+	readCardList();
 	setUpDeck();
 	drawPhase();
 }
+function readCardList(){
+	//Eventually, this function will read from a .txt file to define all the cards that will be used.
+	//Foreach card read from the list:
+
+	const endTurn = new Card("End Turn","Ends the current Turn");
+	endTurn.displayZone = decisionHTML;
+	endTurn.onPlayAbilities.push(new EndTurnPhase());
+
+	const f = new Card("Farmer","I AM the Farm Lord");
+	f.onTurnStartAbilities.push(new UpdateLog(f.name+" harvested 1 food!"), new ChangeResources("Food",1));
+	f.onPlayAbilities.push(new UpdateLog("'Oh I sure do love farming!'"),new UpdateLog(f.name+" harvested 5 food!"), new ChangeResources("Food",5), new HideHand(), new AddDecisions(endTurn),new DecisionPhase());
+	allCards.set(f.name, f);
+
+	const s = new Card("Soldier","Soldier Time");
+	s.onTurnStartAbilities.push(new UpdateLog(s.name+" Bolstered Defense by 1!"), new ChangeResources("Defense",1));
+	s.onPlayAbilities.push(new UpdateLog("'Bolster it up!'"),new UpdateLog(s.name+" Bolstered Defense by 5!"), new ChangeResources("Defense",5), new HideHand(), new AddDecisions(endTurn),new DecisionPhase());
+	allCards.set(s.name, s);
+
+	const p = new Card("Priest","Priest all day, Every Day");
+	p.onTurnStartAbilities.push(new UpdateLog(p.name+" Gained 1 Follower!"), new ChangeResources("Followers",1));
+	p.onPlayAbilities.push(new UpdateLog("'I could priest all day!'"),new UpdateLog(p.name+" Gained 5 Followers!"),new ChangeResources("Followers",5), new HideHand(), new AddDecisions(endTurn),new DecisionPhase());
+	allCards.set(p.name, p);
+
+	const a = new Card("Artist","Generates Culture");
+	a.onTurnStartAbilities.push(new UpdateLog(a.name+" Gained 1 Culture!"), new ChangeResources("Culture",1));
+	a.onPlayAbilities.push(new UpdateLog("'Churning out them cultures!'"),new UpdateLog(p.name+" Gained 5 Culture!"),new ChangeResources("Culture",5), new HideHand(), new AddDecisions(endTurn),new DecisionPhase());
+	allCards.set(a.name, a);
+
+	const l = new Card("Lord","Lord Time, BOOOY");
+	l.onTurnStartAbilities.push(new UpdateLog(l.name+" Collected 1 of Everything"), new ChangeResources("Food",1),new ChangeResources("Followers",1),new ChangeResources("Culture",1),	new ChangeResources("Defense",1));
+	l.onPlayAbilities.push(new UpdateLog("'Lording is the best job there is!!'"), new UpdateLog(l.name+" Collected 1 of Everything"), new ChangeResources("Food",1),new ChangeResources("Followers",1),new ChangeResources("Culture",1), new ChangeResources("Defense",1), new HideHand(), new AddDecisions(endTurn),new DecisionPhase());
+	allCards.set(l.name, l);
+
+}
+
 function setUpDeck() {
 	//Create Starting Deck
-	deckZone.cards.push(new Farmer());
-	deckZone.cards.push(new Soldier());
-	deckZone.cards.push(new Priest());
-	deckZone.cards.push(new Artist());
-	deckZone.cards.push(new Lord());
+	const newFarmer: Card = allCards.get("Farmer") as Card;
+	const newSoldier: Card = allCards.get("Soldier") as Card;
+	const newArtist: Card = allCards.get("Artist") as Card;
+	const newPriest: Card = allCards.get("Priest") as Card;
+	const newLord: Card = allCards.get("Lord") as Card;
+	deckZone.cards.push(newFarmer);
+	deckZone.cards.push(newSoldier);
+	deckZone.cards.push(newArtist);
+	deckZone.cards.push(newPriest);
+	deckZone.cards.push(newLord);
+	
 }
 function drawPhase(){
 	phase = Phase.Draw;
@@ -494,7 +485,8 @@ function drawPhase(){
 }
 function turnStartPhase(){
 	currentTurn++;
-	updateLog("Turn "+currentTurn.toString());
+	updateLog("");
+	updateLog("<b>Turn "+currentTurn.toString()+"</b>");
 	phase = Phase.TurnStart;
 	applyAllPassiveEffects();	
 }
