@@ -421,40 +421,74 @@ function convertCardToString(card: Card){
 	if(card.onPlayAbilities.length>0){
 		cardString+="onPlayAbilities: \n\t";
 		card.onPlayAbilities.forEach(function(ability){
-			cardString+=ability.name+" "+ability.var1+" "+ability.var2+" "+ability.var3+"\n\t";
+			cardString+=ability.name;
+			if (ability.var1!=null)
+			cardString+=": "+ability.var1;
+			if (ability.var2!=null)
+			cardString+=", "+ability.var2;
+			if (ability.var3!=null)
+			cardString+=", "+ability.var3
+			cardString+="\n\t";
 		});
 		cardString+="\n";
 	}
 	if(card.onDrawAbilities.length>0){
-		cardString+="\t"+"onDrawAbilities: ";
+		cardString+="onDrawAbilities: \n\t";
 		card.onDrawAbilities.forEach(function(ability){
-			cardString+=ability.name+", ";
+			cardString+=ability.name;
+			if (ability.var1!=null)
+			cardString+=": "+ability.var1;
+			if (ability.var2!=null)
+			cardString+=", "+ability.var2;
+			if (ability.var3!=null)
+			cardString+=", "+ability.var3
+			cardString+="\n\t";
 		});
 		cardString+="\n";
 	}
 	if(card.onTurnStartAbilities.length>0){
-		cardString+="\t"+"onTurnStartAbilities: ";
+		cardString+="onTurnStartAbilities: \n\t";
 		card.onTurnStartAbilities.forEach(function(ability){
-			cardString+=ability.name+", ";
+			cardString+=ability.name;
+			if (ability.var1!=null)
+			cardString+=": "+ability.var1;
+			if (ability.var2!=null)
+			cardString+=", "+ability.var2;
+			if (ability.var3!=null)
+			cardString+=", "+ability.var3
+			cardString+="\n\t";
 		});
 		cardString+="\n";
 	}
 	if(card.onDecisionAbilities.length>0){
-		cardString+="\t"+"onDecisionAbilities: ";
+		cardString+="onDecisionAbilities: \n\t";
 		card.onDecisionAbilities.forEach(function(ability){
-			cardString+=ability.name+", ";
+			cardString+=ability.name;
+			if (ability.var1!=null)
+			cardString+=": "+ability.var1;
+			if (ability.var2!=null)
+			cardString+=", "+ability.var2;
+			if (ability.var3!=null)
+			cardString+=", "+ability.var3
+			cardString+="\n\t";
 		});
 		cardString+="\n";
 	}
 	if(card.onTurnEndAbilities.length>0){
-		cardString+="\t"+"onTurnEndAbilities: ";
+		cardString+="onTurnEndAbilities: \n\t";
 		card.onTurnEndAbilities.forEach(function(ability){
-			cardString+=ability.name+", ";
+			cardString+=ability.name;
+			if (ability.var1!=null)
+			cardString+=": "+ability.var1;
+			if (ability.var2!=null)
+			cardString+=", "+ability.var2;
+			if (ability.var3!=null)
+			cardString+=", "+ability.var3
+			cardString+="\n\t";
 		});
 		cardString+="\n";
 	}
-
-	cardString+="\tallCards.set("+card.name.replace(" ","")+".name, "+card.name.replace(" ","")+");\n";
+	
 	return cardString;
 }
 
