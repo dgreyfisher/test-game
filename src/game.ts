@@ -18,7 +18,7 @@ function updateCardDisplay(html: HTMLElement){
 	let c = getCardByID(Number(html.id));
 	let display : string = `<img id ="cardimagedisplay" 
 	src="assets/${c.name}.jpg" alt="${c.name}">
-	<div id="cardtextbox">	<p>${c.cardText}</p></div>`;
+	<div id="cardtextbox">	<p>${c.description}</p></div>`;
 
 cardDisplayHTML.innerHTML = display;
 }
@@ -58,7 +58,7 @@ class Card {
 	displayZone: HTMLElement|null = null;
 	btn: HTMLElement|null =null;
 	cardImg: HTMLElement|null = null;
-	cardText: string|null = "Generic Card Text";
+	description: string|null = "Generic Card Text";
 	onPlayAbilities: Array<Ability> = new Array<Ability>();
 	onDrawAbilities: Array<Ability> = new Array<Ability>();
 	onTurnStartAbilities: Array<Ability> = new Array<Ability>();
@@ -68,7 +68,7 @@ class Card {
 	constructor(name:string,cardText:string) {
 		this.uniqueID = getUniqueID();
 		this.name  = name;
-		this.cardText = cardText;
+		this.description = cardText;
 	}
 
 	getImage(){
@@ -197,6 +197,7 @@ if(handHTML!=null && decisionHTML!=null){
 }
 
 class Ability {
+	name : string = "Ability";
 	var1 : any;
 	var2 : any;
 	var3 : any;
@@ -209,36 +210,43 @@ class Ability {
 	}
 }
 class ChangeResources extends Ability{
+	name = "ChangeResources";
 	activate(): void {
 		changeResources(this.var1,this.var2);
 	}
 }
 class UpdateLog extends Ability{
+	name = "UpdateLog";
 	activate(): void {
 		updateLog(this.var1);
 	}
 }
 class AddDecisions extends Ability{
+	name = "AddDecisions";
 	activate(): void {
 		addDecisions(this.var1);
 	}
 }
 class DiscardHand extends Ability{
+	name = "DiscardHand";
 	activate(): void {
 		discardHand();
 	}
 }
 class HideHand extends Ability{
+	name = "HideHand";
 	activate(): void {
 		hideHand();
 	}
 }
 class DecisionPhase extends Ability{
+	name = "DecisionPhase";
 	activate(): void {
 		decisionPhase();
 	}
 }
 class EndTurnPhase extends Ability{
+	name = "EndTurnPhase";
 	activate(): void {
 		endTurnPhase();
 	}
@@ -406,6 +414,50 @@ function startGame() {
 	setUpDeck();
 	drawPhase();
 }
+
+//Converts a card to a string that can be read by the readCardList() function. This is used to save the deck to a .txt file.
+function convertCardToString(card: Card){
+	let cardString = card.name +"\n\""+card.description+"\"\n";
+	if(card.onPlayAbilities.length>0){
+		cardString+="onPlayAbilities: \n\t";
+		card.onPlayAbilities.forEach(function(ability){
+			cardString+=ability.name+" "+ability.var1+" "+ability.var2+" "+ability.var3+"\n\t";
+		});
+		cardString+="\n";
+	}
+	if(card.onDrawAbilities.length>0){
+		cardString+="\t"+"onDrawAbilities: ";
+		card.onDrawAbilities.forEach(function(ability){
+			cardString+=ability.name+", ";
+		});
+		cardString+="\n";
+	}
+	if(card.onTurnStartAbilities.length>0){
+		cardString+="\t"+"onTurnStartAbilities: ";
+		card.onTurnStartAbilities.forEach(function(ability){
+			cardString+=ability.name+", ";
+		});
+		cardString+="\n";
+	}
+	if(card.onDecisionAbilities.length>0){
+		cardString+="\t"+"onDecisionAbilities: ";
+		card.onDecisionAbilities.forEach(function(ability){
+			cardString+=ability.name+", ";
+		});
+		cardString+="\n";
+	}
+	if(card.onTurnEndAbilities.length>0){
+		cardString+="\t"+"onTurnEndAbilities: ";
+		card.onTurnEndAbilities.forEach(function(ability){
+			cardString+=ability.name+", ";
+		});
+		cardString+="\n";
+	}
+
+	cardString+="\tallCards.set("+card.name.replace(" ","")+".name, "+card.name.replace(" ","")+");\n";
+	return cardString;
+}
+
 function readCardList(){
 	//Eventually, this function will read from a .txt file to define all the cards that will be used.
 	//Foreach card read from the list:
@@ -439,6 +491,11 @@ function readCardList(){
 	l.onPlayAbilities.push(new UpdateLog("'Lording is the best job there is!!'"), new UpdateLog(l.name+" Collected 1 of Everything"), new ChangeResources("Food",1),new ChangeResources("Followers",1),new ChangeResources("Culture",1), new ChangeResources("Defense",1), new HideHand(), new AddDecisions(endTurn),new DecisionPhase());
 	allCards.set(l.name, l);
 
+console.log(convertCardToString(f));
+console.log(convertCardToString(s));
+console.log(convertCardToString(p));
+console.log(convertCardToString(a));
+console.log(convertCardToString(l));
 }
 
 function setUpDeck() {
